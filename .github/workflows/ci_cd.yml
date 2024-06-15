@@ -24,4 +24,4 @@ jobs:
           cache: maven
       - name: Run all tests in project
         run: |
-           mvn compile && mvn test
+            cd backend-doc && mvn compile && mvn test
