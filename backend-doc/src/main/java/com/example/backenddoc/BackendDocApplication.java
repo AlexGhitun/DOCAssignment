@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 @SpringBootApplication
-@EntityScan("com.example.docapp.entity")
+@EntityScan("com.example.backenddoc.entity")
 public class BackendDocApplication {
 
     public static void main(String[] args) {
