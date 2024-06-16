@@ -1,0 +1,59 @@
+name: CD - Deploy to Minikube using Github Actions
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy to Minikube
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start Minikube
+        id: minikube
+        uses: medyagh/setup-minikube@latest
+
+      - name: Try the cluster
+        run: kubectl get pods -A
+
+      - name: Build Frontend Image
+        run: |
+          eval $(minikube -p minikube docker-env)
+          docker build -t frontend:1.0.0 -f ./path/to/frontend/Dockerfile .
+
+      - name: Build Backend Image
+        run: |
+          eval $(minikube -p minikube docker-env)
+          docker build -t backend:1.0.0 -f ./path/to/backend/Dockerfile .
+
+      - name: Deploy to Minikube
+        run: |
+          kubectl apply -f deployment.yaml
+          kubectl wait --for=condition=Ready pod -l app=frontend
+          kubectl wait --for=condition=Ready pod -l app=backend
+          kubectl wait --for=condition=Ready pod -l app=postgres
+          kubectl get all
+
+      - name: Test Frontend Service URL
+        run: |
+          echo "Frontend SERVICE_URL=$(minikube service frontend --url)"
+          kubectl port-forward service/frontend 3000:3000 &> /dev/null &
+          sleep 5
+          curl -i http://localhost:3000/
+
+      - name: Test Backend Service URL
+        run: |
+          echo "Backend SERVICE_URL=$(minikube service backend --url)"
+          kubectl port-forward service/backend 8989:8989 &> /dev/null &
+          sleep 5
+          curl -i http://localhost:8989/
+
+      - name: Cleanup
+        run: |
+          eval $(minikube docker-env -u)
+          minikube delete
