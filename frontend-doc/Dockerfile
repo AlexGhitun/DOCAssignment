@@ -5,7 +5,7 @@ FROM node:21-alpine
 WORKDIR /app
 
 # Copy package.json and package-lock.json first
-COPY package*.json .
+COPY package*.json ./
 
 # Build the app
 RUN npm install

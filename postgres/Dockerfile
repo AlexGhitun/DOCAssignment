@@ -1,4 +1,4 @@
-FROM postgres:latest
+FROM postgres:16-alpine
 ENV POSTGRES_PASSWORD=1234
 ENV POSTGRES_DB=database
 USER postgres
